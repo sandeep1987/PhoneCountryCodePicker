@@ -118,7 +118,17 @@
     NSMutableArray *searchDict = [[NSMutableArray alloc]init];
     [searchDict removeAllObjects]; // remove all data that belongs to previous search
     if([searchText isEqualToString:@""]|| searchText==nil){
+        if (_isUsingChinese) {
+            _PCCs = [self chineseSortWithDictionaryArray:array];
+        }
+        else
+        {
+            _PCCs = [self englishSortWithDictionaryArray:array];
+        }
         
+        _keys = [[_PCCs allKeys] sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            return [obj1 compare:obj2 options:NSNumericSearch];
+        }];
         [self.tableView reloadData];
         return;
     }
