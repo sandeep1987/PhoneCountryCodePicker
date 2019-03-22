@@ -8,10 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PCCPViewController : UITableViewController
+@interface PCCPViewController : UITableViewController <UISearchBarDelegate>
 
 @property (nonatomic) BOOL isUsingChinese;
 @property (nonatomic, strong) NSString * leftBarButtonItemTitle;
+@property (nonatomic, strong) UISearchBar *searchBarCountry;
 
 - (id)initWithCompletion:(void(^)(id countryDic))completion;
 + (UIImage *)imageForCountryCode:(NSString *)code;

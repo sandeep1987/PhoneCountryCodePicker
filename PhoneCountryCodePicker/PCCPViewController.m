@@ -63,6 +63,16 @@
     [self.tableView setShowsVerticalScrollIndicator:NO];
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cellIdentifier"];
     
+    // To Dismiss Keyboard if user is not typing anything
+    self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
+    self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
+    
+    // Added a Search Bar in Table View
+    searchBarCountry = [[UISearchBar alloc] initWithFrame:CGRectMake(10, 0, self.tableView.frame.size.width, 44)];
+    searchBarCountry.delegate = self;
+    
+    self.tableView.tableHeaderView = searchBarCountry;
+    
     UIView *currentTitleView = [[self navigationItem] titleView];
     
     UIActivityIndicatorView *aiview = [[UIActivityIndicatorView alloc]  initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
@@ -98,6 +108,52 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{
+    
+    NSArray * array = [PCCPViewController countryInfos];
+    
+    NSMutableArray *searchDict = [[NSMutableArray alloc]init];
+    [searchDict removeAllObjects]; // remove all data that belongs to previous search
+    if([searchText isEqualToString:@""]|| searchText==nil){
+        
+        [self.tableView reloadData];
+        return;
+    }
+    
+    for(int i=0; i<[array count];i++)
+    {
+        NSDictionary *countryTemp = [array objectAtIndex:i];
+        if (@available(iOS 8.0, *)) {
+            if ([countryTemp[@"country_en"] containsString:searchText]) {
+                [searchDict addObject:countryTemp];
+            }
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    
+    if (searchDict.count > 0) {
+        if (_isUsingChinese) {
+            _PCCs = [self chineseSortWithDictionaryArray:searchDict];
+        }
+        else
+        {
+            _PCCs = [self englishSortWithDictionaryArray:searchDict];
+        }
+        
+        _keys = [[_PCCs allKeys] sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            return [obj1 compare:obj2 options:NSNumericSearch];
+        }];
+        [self.tableView reloadData];
+    }
+    
+    else
+    {
+        [self.tableView reloadData];
+    }
 }
 
 #pragma mark - PCCs data for en
